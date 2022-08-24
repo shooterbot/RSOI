@@ -3,6 +3,7 @@ package uc_implementation
 import (
 	"RSOI/src/recommendations/models"
 	"math"
+	"sort"
 )
 
 type RecommendationsUsecase struct {
@@ -75,7 +76,7 @@ func get_attributes(lib []models.Book) []attributes {
 	return res
 }
 
-func (rc *RecommendationsUsecase) GetRecommendations(lib []models.Book, prefs *models.PreferencesList) []float64 {
+func (rc *RecommendationsUsecase) GetRecommendations(lib []models.Book, prefs *models.PreferencesList) []models.Book {
 	n := len(lib)
 	like_res := make([]float64, n)
 	unlike_res := make([]float64, n)
@@ -110,10 +111,13 @@ func (rc *RecommendationsUsecase) GetRecommendations(lib []models.Book, prefs *m
 		}
 	}
 
-	res := make([]float64, n)
+	dists := make([]float64, n)
 
 	for i := 0; i < n; i++ {
-		res[i] = like_res[i] - unlike_res[i] + m
+		dists[i] = like_res[i] - unlike_res[i] + m
 	}
-	return res
+
+	sort.Slice(lib, func(i, j int) bool { return dists[lib[i].Id] > dists[lib[j].Id] })
+
+	return lib
 }
