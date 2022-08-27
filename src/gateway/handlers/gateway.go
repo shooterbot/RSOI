@@ -37,10 +37,7 @@ func (gh *GatewayHandlers) GetRecommendations(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	prefs := gh.gc.GetUserPreferences(userUuid[0])
-	books := gh.gc.GetCatalogue()
-
-	rec := gh.gc.GetRecommendations(books, prefs)
+	rec, err := gh.gc.GetRecommendations(userUid[0])
 
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(rec)

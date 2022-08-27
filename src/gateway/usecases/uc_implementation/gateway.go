@@ -23,21 +23,36 @@ func NewGatewayUsecase(connector connector.IGatewayConnector) GatewayUsecase {
 	}
 }
 
-func (gc GatewayUsecase) GetRecommendations(lib []models.Book, prefs models.PreferencesList) ([]models.Book, gateway_error.GatewayError) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (gc GatewayUsecase) GetUserPreferences(uuid string) (models.PreferencesList, gateway_error.GatewayError) {
-	code := gateway_error.Ok
-	res, err := gc.usersCB.Call(func() (interface{}, error) { return gc.connector.GetUserPreferences(uuid) })
-	if err != nil {
-		code = gateway_error.Internal
+func (gc GatewayUsecase) GetRecommendations(userUuid string) (*[]models.Book, gateway_error.GatewayError) {
+	var res *[]models.Book = nil
+	prefs, gerr := gc.GetUserPreferences(userUuid)
+	if gerr.Code != gateway_error.Ok {
+		var books *[]models.Book
+		books, gerr = gc.GetCatalogue()
+		if gerr.Code != gateway_error.Ok {
+			rec, err := gc.recommendationCB.Call(gc.connector.GetRecommendations(books, prefs))
+			if err == nil {
+				res = rec.(*[]models.Book)
+			}
+		}
 	}
-	return res.(models.PreferencesList), gateway_error.GatewayError{Err: err, Code: code}
+	return res, gerr
 }
 
-func (gc GatewayUsecase) GetCatalogue() ([]models.Book, gateway_error.GatewayError) {
+func (gc GatewayUsecase) GetUserPreferences(uuid string) (*models.PreferencesList, gateway_error.GatewayError) {
+	code := gateway_error.Ok
+	var res *models.PreferencesList
+	prefs, err := gc.usersCB.Call(func() (interface{}, error) { return gc.connector.GetUserPreferences(uuid) })
+	if err != nil {
+		res = nil
+		code = gateway_error.Internal
+	} else {
+		res = prefs.(*models.PreferencesList)
+	}
+	return res, gateway_error.GatewayError{Err: err, Code: code}
+}
+
+func (gc GatewayUsecase) GetCatalogue() (*[]models.Book, gateway_error.GatewayError) {
 	//TODO implement me
 	panic("implement me")
 }

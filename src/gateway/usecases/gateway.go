@@ -6,7 +6,7 @@ import (
 )
 
 type IGatewayUsecase interface {
-	GetRecommendations(lib []models.Book, prefs models.PreferencesList) ([]models.Book, gateway_error.GatewayError)
-	GetUserPreferences(uuid string) (models.PreferencesList, gateway_error.GatewayError)
-	GetCatalogue() ([]models.Book, gateway_error.GatewayError)
+	GetRecommendations(userUuid string) (*[]models.Book, gateway_error.GatewayError)
+	GetUserPreferences(uuid string) (*models.PreferencesList, gateway_error.GatewayError)
+	GetCatalogue() (*[]models.Book, gateway_error.GatewayError)
 }
