@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"RSOI/src/gateway/gateway_error"
 	"RSOI/src/gateway/usecases"
 	"encoding/json"
 	"fmt"
@@ -37,7 +38,12 @@ func (gh *GatewayHandlers) GetRecommendations(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	rec, err := gh.gc.GetRecommendations(userUid[0])
+	rec, ret := gh.gc.GetRecommendations(userUuid[0])
+	if ret.Code != gateway_error.Ok {
+		fmt.Println("Failed to get recommendations from internal service")
+		writeError(w, "Error while getting recommendations", http.StatusServiceUnavailable)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(rec)
