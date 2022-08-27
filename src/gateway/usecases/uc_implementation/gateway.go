@@ -30,9 +30,11 @@ func (gc GatewayUsecase) GetRecommendations(userUuid string) (*[]models.Book, ga
 		var books *[]models.Book
 		books, gerr = gc.GetCatalogue()
 		if gerr.Code != gateway_error.Ok {
-			rec, err := gc.recommendationCB.Call(gc.connector.GetRecommendations(books, prefs))
+			rec, err := gc.recommendationCB.Call(func() (interface{}, error) { return gc.connector.GetRecommendations(books, prefs) })
 			if err == nil {
 				res = rec.(*[]models.Book)
+			} else {
+				gerr = gateway_error.GatewayError{Err: err, Code: gateway_error.Internal}
 			}
 		}
 	}
@@ -40,8 +42,8 @@ func (gc GatewayUsecase) GetRecommendations(userUuid string) (*[]models.Book, ga
 }
 
 func (gc GatewayUsecase) GetUserPreferences(uuid string) (*models.PreferencesList, gateway_error.GatewayError) {
-	code := gateway_error.Ok
 	var res *models.PreferencesList
+	code := gateway_error.Ok
 	prefs, err := gc.usersCB.Call(func() (interface{}, error) { return gc.connector.GetUserPreferences(uuid) })
 	if err != nil {
 		res = nil
@@ -53,6 +55,13 @@ func (gc GatewayUsecase) GetUserPreferences(uuid string) (*models.PreferencesLis
 }
 
 func (gc GatewayUsecase) GetCatalogue() (*[]models.Book, gateway_error.GatewayError) {
-	//TODO implement me
-	panic("implement me")
+	var res *[]models.Book
+	code := gateway_error.Ok
+	books, err := gc.catalogueCB.Call(func() (interface{}, error) { return gc.connector.GetCatalogue() })
+	if err != nil {
+		code = gateway_error.Internal
+	} else {
+		res = books.(*[]models.Book)
+	}
+	return res, gateway_error.GatewayError{Err: err, Code: code}
 }
