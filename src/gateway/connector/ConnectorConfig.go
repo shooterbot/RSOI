@@ -1,5 +1,5 @@
 package connector
 
 type Config struct {
-	LibraryAddress, ReservationAddress, RatingAddress, ApiPath string
+	CatalogueAddress, UsersAddress, RecommendationsAddress, ApiPath string
 }
