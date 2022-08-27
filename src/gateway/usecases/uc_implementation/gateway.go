@@ -3,14 +3,23 @@ package uc_implementation
 import (
 	"RSOI/src/gateway/connector"
 	"RSOI/src/gateway/models"
+	"RSOI/src/gateway/usecases"
 )
 
 type GatewayUsecase struct {
-	gc connector.IGatewayConnector
+	connector     connector.IGatewayConnector
+	libraryCB     usecases.CircuitBreaker
+	reservationCB usecases.CircuitBreaker
+	ratingCB      usecases.CircuitBreaker
 }
 
-func NewGatewayUsecase(gc connector.IGatewayConnector) GatewayUsecase {
-	return GatewayUsecase{gc: gc}
+func NewGatewayUsecase(connector connector.IGatewayConnector) GatewayUsecase {
+	return GatewayUsecase{
+		connector:     connector,
+		libraryCB:     *usecases.NewCircuitBreaker(50),
+		reservationCB: *usecases.NewCircuitBreaker(50),
+		ratingCB:      *usecases.NewCircuitBreaker(50),
+	}
 }
 
 func (gc GatewayUsecase) GetRecommendations(lib []models.Book, prefs models.PreferencesList) []models.Book {
@@ -19,7 +28,7 @@ func (gc GatewayUsecase) GetRecommendations(lib []models.Book, prefs models.Pref
 }
 
 func (gc GatewayUsecase) GetUserPreferences(uuid string) models.PreferencesList {
-	//TODO implement me
+
 	panic("implement me")
 }
 
