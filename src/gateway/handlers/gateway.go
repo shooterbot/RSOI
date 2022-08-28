@@ -5,6 +5,7 @@ import (
 	"RSOI/src/gateway/usecases"
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
 	"io"
 	"net/http"
 )
@@ -50,6 +51,38 @@ func (gh *GatewayHandlers) GetRecommendations(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		fmt.Println("Encoding json error: ", err)
 		http.Error(w, "Failed to encode data to json", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (gh *GatewayHandlers) AddUserBookScore(w http.ResponseWriter, r *http.Request) {
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			fmt.Println("Failed to close response body")
+		}
+	}(r.Body)
+
+	vars := mux.Vars(r)
+	bookUuid := vars["bookUuid"]
+	if bookUuid == "" {
+		fmt.Println("Received an invalid path parameter")
+		writeError(w, "Failed to return the book: wrong path parameter", http.StatusBadRequest)
+		return
+	}
+
+	username := r.Header.Get("User-Name")
+	score := r.Header.Get("Score")
+
+	ret := gh.gc.AddUserBookScore(bookUuid, username, score)
+
+	if ret.Code == gateway_error.User || ret.Code == gateway_error.Internal {
+		fmt.Println("Failed to get add user score to a book")
+		if ret.Code == gateway_error.Internal {
+			writeError(w, "Error while updating book user score", http.StatusServiceUnavailable)
+		} else {
+			writeError(w, "Bad input given to updating book user score", http.StatusBadRequest)
+		}
 		return
 	}
 }
