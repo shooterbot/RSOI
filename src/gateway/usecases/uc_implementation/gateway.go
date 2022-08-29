@@ -66,13 +66,13 @@ func (gc GatewayUsecase) GetCatalogue() (*[]models.Book, gateway_error.GatewayEr
 	return res, gateway_error.GatewayError{Err: err, Code: code}
 }
 
-func (gc *GatewayUsecase) AddUserBookScore(bookUuid string, username string, score string) error {
+func (gc *GatewayUsecase) AddUserBookScore(bookUuid string, username string, score string) gateway_error.GatewayError {
 	code := gateway_error.Ok
-	err := gc.catalogueCB.Call(func() error { return gc.connector.AddBookScore(bookUuid) })
+	err := gc.connector.AddBookScore(bookUuid, score)
 	if err != nil {
 		code = gateway_error.Internal
 	} else {
-		err = gc.usersCB.Call(func() error { return gc.connector.AddUserScore(username, bookUuid) })
+		err = gc.connector.AddUserScore(username, bookUuid, score)
 		if err != nil {
 			code = gateway_error.Internal
 		}

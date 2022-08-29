@@ -91,7 +91,7 @@ func (gc *GatewayConnector) GetRecommendations(books *[]models.Book, prefs *mode
 	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {
-		fmt.Println("Failed to get comics from internal service")
+		fmt.Println("Failed to get recommendations from internal service")
 		return nil, err
 	}
 
@@ -104,4 +104,40 @@ func (gc *GatewayConnector) GetRecommendations(books *[]models.Book, prefs *mode
 	}
 
 	return res, err
+}
+
+func (gc *GatewayConnector) AddBookScore(bookUuid, score string) error {
+	url := fmt.Sprintf(gc.config.CatalogueAddress+gc.config.ApiPath+"books/%s", bookUuid)
+	request, err := http.NewRequest("PATCH", url, nil)
+	if err != nil {
+		fmt.Println("Failed to create an http request")
+		return err
+	}
+	request.Header.Set("Score", score)
+
+	client := &http.Client{}
+	_, err = client.Do(request)
+	if err != nil {
+		fmt.Println("Internal service failed to update book rating")
+	}
+	return err
+}
+
+func (gc *GatewayConnector) AddUserScore(username string, bookUuid string, score string) error {
+	url := fmt.Sprintf(gc.config.UsersAddress + gc.config.ApiPath + "preferences")
+	request, err := http.NewRequest("PUT", url, nil)
+	if err != nil {
+		fmt.Println("Failed to create an http request")
+		return err
+	}
+	request.Header.Set("Username", username)
+	request.Header.Set("Book-UUID", bookUuid)
+	request.Header.Set("Score", score)
+
+	client := &http.Client{}
+	_, err = client.Do(request)
+	if err != nil {
+		fmt.Println("Internal service failed to add user score")
+	}
+	return err
 }
