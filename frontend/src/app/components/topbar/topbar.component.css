@@ -1,0 +1,25 @@
+.spacer {
+  flex: 1;
+}
+
+.topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  background-color: #1976d2;
+  color: white;
+  font-weight: 600;
+}
+
+.topbar-authorization {
+  min-width: 90px;
+  color: #1976d2;
+  display: flex;
+  justify-content: flex-end;
+  margin: 5px;
+  flex-grow: 10;
+}
