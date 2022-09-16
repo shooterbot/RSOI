@@ -11,6 +11,7 @@ import {AppRoutingModule} from "./app-routing/app-routing.module";
 import { CataloguePageComponent } from './components/catalogue-page/catalogue-page.component';
 import { RecommendationsPageComponent } from './components/recommendations-page/recommendations-page.component';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {HttpClientModule} from "@angular/common/http";
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
     RouterLink,
     MatIconModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]
