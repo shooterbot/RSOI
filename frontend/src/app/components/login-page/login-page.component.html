@@ -1,1 +1,40 @@
-<p>login-page works!</p>
+<form
+  class="card"
+  [formGroup]="form"
+>
+  <div class="card-content">
+    <span>Вход и регистрация</span>
+    <input
+      class="input-form"
+      formControlName="login"
+      id="login"
+      type="text"
+      placeholder="Логин"
+    >
+    <input
+      class="input-form"
+      formControlName="password"
+      id="password"
+      type="password"
+      placeholder="Пароль"
+    >
+  </div>
+  <div class="card-actions">
+    <button
+      type="submit"
+      class="login-button"
+      [disabled]="form.invalid"
+      (click)="onLogin()"
+    >
+      Войти
+    </button>
+    <button
+      type="submit"
+      class="login-button"
+      [disabled]="form.invalid"
+      (click)="onRegister()"
+    >
+      Зарегистрироваться
+    </button>
+  </div>
+</form>

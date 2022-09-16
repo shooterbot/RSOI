@@ -1,15 +1,16 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
 import {RouterModule, Routes} from "@angular/router";
 import {LoginPageComponent} from "../components/login-page/login-page.component";
 import {CataloguePageComponent} from "../components/catalogue-page/catalogue-page.component";
 import {RecommendationsPageComponent} from "../components/recommendations-page/recommendations-page.component";
 
 const routes: Routes = [
-  { path: 'home', component: CataloguePageComponent},
-  { path: 'recommendations', component: RecommendationsPageComponent},
-  { path: 'login', component: LoginPageComponent},
-  { path: '**', redirectTo: 'home'},
+  {path: 'catalogue', component: CataloguePageComponent},
+  {path: 'recommendations', component: RecommendationsPageComponent},
+  {path: 'login', component: LoginPageComponent},
+  {path: 'home', redirectTo: 'catalogue'},
+  {path: '**', redirectTo: 'catalogue'},
 ];
 
 @NgModule({
@@ -20,4 +21,5 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {
+}

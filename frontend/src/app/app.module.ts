@@ -10,6 +10,7 @@ import { LoginPageComponent } from './components/login-page/login-page.component
 import {AppRoutingModule} from "./app-routing/app-routing.module";
 import { CataloguePageComponent } from './components/catalogue-page/catalogue-page.component';
 import { RecommendationsPageComponent } from './components/recommendations-page/recommendations-page.component';
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -24,7 +25,9 @@ import { RecommendationsPageComponent } from './components/recommendations-page/
     BrowserModule,
     BrowserAnimationsModule,
     RouterLink,
-    MatIconModule
+    MatIconModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
