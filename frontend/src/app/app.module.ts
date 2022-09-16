@@ -6,11 +6,13 @@ import { TopbarComponent } from './components/topbar/topbar.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {RouterLink} from "@angular/router";
 import {MatIconModule} from "@angular/material/icon";
+import { LoginPageComponent } from './components/login-page/login-page.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    TopbarComponent
+    TopbarComponent,
+    LoginPageComponent
   ],
   imports: [
     BrowserModule,
