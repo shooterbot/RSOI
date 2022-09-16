@@ -3,7 +3,7 @@
   <span>Welcome</span>
   <div class="spacer"></div>
   <div class="topbar-authorization" *ngIf="user == null">
-    <mat-icon>person</mat-icon>
+    <mat-icon routerLink="/login">person</mat-icon>
   </div>
   <div class="topbar-authorization" *ngIf="user && user.id">
     <mat-icon>logout</mat-icon>
