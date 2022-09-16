@@ -9,7 +9,7 @@ import {User} from "../models/user";
   providedIn: 'root'
 })
 export class AuthService {
-  private url = `${environment.baseUrl}/api/v1`;
+  private url = `${environment.baseUrl}:${environment.backendPort}/api/v1`;
 
   constructor(private http: HttpClient) {
   }
