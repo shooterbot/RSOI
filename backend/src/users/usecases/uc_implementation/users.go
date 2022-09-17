@@ -20,3 +20,7 @@ func (uc *UsersUsecase) CreateUser(user *models.User) error {
 func (uc *UsersUsecase) LoginUser(user *models.User) (bool, error) {
 	return uc.ur.LoginUser(user)
 }
+
+func (uc *UsersUsecase) GetUserPreferences(uuid string) (models.PreferencesList, error) {
+	return uc.ur.GetUserPreferences(uuid)
+}
