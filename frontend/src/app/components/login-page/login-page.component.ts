@@ -24,16 +24,16 @@ export class LoginPageComponent implements OnInit {
   }
 
   onLogin() {
-    this.authService.login(this.form.value.username, this.form.value.password).subscribe(
+    this.authService.login(this.form.value.login, this.form.value.password).subscribe(
       session => {
         localStorage.setItem('user-token', session.token);
         localStorage.setItem('username', session.username);
         localStorage.setItem('id', session.id.toString());
-        this.router.navigate(['/home']);
+        this.router.navigate(['/catalogue']);
       },
       error => {
         if (error.status === 401) {
-          this.error = 'Неправильные данные.';
+          this.error = 'Неправильные данные';
         } else if (error.status === 400) {
           this.error = 'Пожалуйста, заполните все поля';
         } else {
@@ -44,9 +44,9 @@ export class LoginPageComponent implements OnInit {
   }
 
   onRegister() {
-    this.authService.register(this.form.value.username, this.form.value.password).subscribe(
+    this.authService.register(this.form.value.login, this.form.value.password).subscribe(
       newuser => {
-        this.authService.login(this.form.value.username, this.form.value.password).subscribe(
+        this.authService.login(this.form.value.login, this.form.value.password).subscribe(
           session => {
             localStorage.setItem('user-token', session.token);
             localStorage.setItem('username', session.username);

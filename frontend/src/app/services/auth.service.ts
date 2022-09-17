@@ -19,7 +19,7 @@ export class AuthService {
       username,
       password,
     };
-    return this.http.post<User>(`${this.url}/users/`, source);
+    return this.http.post<User>(`${this.url}/users`, source);
   }
 
   public login(username: string, password: string): Observable<Session> {
@@ -27,6 +27,6 @@ export class AuthService {
       username,
       password,
     };
-    return this.http.post<Session>(`${this.url}/sessions/`, source);
+    return this.http.post<Session>(`${this.url}/sessions`, source);
   }
 }
