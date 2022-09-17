@@ -33,5 +33,5 @@ func (ur *UsersRepository) LoginUser(user *models.User) (bool, error) {
 		fmt.Printf("Failed to login user via db\n")
 	}
 
-	return data != nil, err
+	return len(data) == 1, err
 }
