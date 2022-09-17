@@ -9,4 +9,5 @@ type IGatewayConnector interface {
 	AddBookScore(bookUuid, score string) error
 	AddUserScore(username string, bookUuid string, score string) error
 	CreateUser(user *models.User) error
+	LoginUser(user *models.User) (bool, error)
 }

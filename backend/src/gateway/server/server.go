@@ -20,6 +20,8 @@ func RunServer(address string, config *connector.Config) error {
 	//defer gc.Close()
 
 	apiRouter.HandleFunc("/catalogue", gh.GetCatalogue).Methods(http.MethodGet)
+	apiRouter.HandleFunc("/users", gh.CreateUser).Methods(http.MethodPost)
+	apiRouter.HandleFunc("/sessions", gh.LoginUser).Methods(http.MethodPost)
 
 	server := http.Server{
 		Addr:    address,

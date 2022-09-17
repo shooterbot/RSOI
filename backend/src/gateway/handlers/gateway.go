@@ -97,7 +97,7 @@ func (gh *GatewayHandlers) CreateUser(w http.ResponseWriter, r *http.Request) {
 	ret := gh.gc.CreateUser(user)
 
 	if ret.Code == gateway_error.User || ret.Code == gateway_error.Internal {
-		fmt.Println("Failed to get add user score to a book")
+		fmt.Println("Failed to create new user")
 		if ret.Code == gateway_error.Internal {
 			writeError(w, "Error while creating a user", http.StatusServiceUnavailable)
 		} else {
@@ -136,5 +136,36 @@ func (gh *GatewayHandlers) AddUserBookScore(w http.ResponseWriter, r *http.Reque
 			writeError(w, "Bad input given to updating book user score", http.StatusBadRequest)
 		}
 		return
+	}
+}
+
+func (gh *GatewayHandlers) LoginUser(w http.ResponseWriter, r *http.Request) {
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			fmt.Println("Failed to close response body")
+		}
+	}(r.Body)
+
+	user := &models.User{}
+	err := json.NewDecoder(r.Body).Decode(user)
+	if err != nil {
+		writeError(w, "Bad input given to user creation", http.StatusBadRequest)
+	}
+
+	res, ret := gh.gc.LoginUser(user)
+
+	if ret.Code == gateway_error.User || ret.Code == gateway_error.Internal {
+		fmt.Println("Failed to authenficate a user")
+		if ret.Code == gateway_error.Internal {
+			writeError(w, "Error while authenficating a user", http.StatusServiceUnavailable)
+		} else {
+			writeError(w, "Bad input given to authenficate a user", http.StatusBadRequest)
+		}
+		return
+	}
+	if !res {
+		fmt.Println("User failed authenfication")
+		writeError(w, "Authenfication failed", http.StatusBadRequest)
 	}
 }
