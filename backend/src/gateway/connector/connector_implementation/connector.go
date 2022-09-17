@@ -46,7 +46,7 @@ func (gc *GatewayConnector) GetUserPreferences(userUuid string) (*models.Prefere
 }
 
 func (gc *GatewayConnector) GetCatalogue() (*[]models.Book, error) {
-	url := fmt.Sprintf(gc.config.CatalogueAddress + gc.config.ApiPath)
+	url := fmt.Sprintf(gc.config.CatalogueAddress + gc.config.ApiPath + "catalogue")
 	response, err := http.Get(url)
 	if err != nil {
 		fmt.Println("Failed to get comics from internal service")
