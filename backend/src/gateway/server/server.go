@@ -7,6 +7,7 @@ import (
 	"RSOI/src/gateway/usecases/uc_implementation"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"net/http"
 )
 
@@ -23,9 +24,19 @@ func RunServer(address string, config *connector.Config) error {
 	apiRouter.HandleFunc("/users", gh.CreateUser).Methods(http.MethodPost)
 	apiRouter.HandleFunc("/sessions", gh.LoginUser).Methods(http.MethodPost)
 
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{
+			http.MethodPost,
+			http.MethodGet,
+		},
+		AllowedHeaders:   []string{"*"},
+		AllowCredentials: false,
+	}).Handler(apiRouter)
+
 	server := http.Server{
 		Addr:    address,
-		Handler: apiRouter,
+		Handler: corsHandler,
 	}
 
 	fmt.Printf("Gateway service server is running on %s\n", address)

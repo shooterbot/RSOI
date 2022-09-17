@@ -166,6 +166,6 @@ func (gh *GatewayHandlers) LoginUser(w http.ResponseWriter, r *http.Request) {
 	}
 	if !res {
 		fmt.Println("User failed authenfication")
-		writeError(w, "Authenfication failed", http.StatusBadRequest)
+		writeError(w, "Authenfication failed", http.StatusUnauthorized)
 	}
 }
