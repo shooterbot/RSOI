@@ -44,6 +44,6 @@ func RunServer(address string, connectionString string) error {
 		os.Exit(0)
 	}()
 
-	fmt.Printf("Library system server is running on %s\n", address)
+	fmt.Printf("Catalogue system server is running on %s\n", address)
 	return server.ListenAndServe()
 }

@@ -23,6 +23,7 @@ func RunServer(address string, config *connector.Config) error {
 	apiRouter.HandleFunc("/catalogue", gh.GetCatalogue).Methods(http.MethodGet)
 	apiRouter.HandleFunc("/users", gh.CreateUser).Methods(http.MethodPost)
 	apiRouter.HandleFunc("/sessions", gh.LoginUser).Methods(http.MethodPost)
+	apiRouter.HandleFunc("/recommendations", gh.GetRecommendations).Methods(http.MethodGet)
 
 	corsHandler := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},

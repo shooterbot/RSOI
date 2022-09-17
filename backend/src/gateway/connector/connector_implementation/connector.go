@@ -72,18 +72,17 @@ func (gc *GatewayConnector) GetCatalogue() (*[]models.Book, error) {
 }
 
 func (gc *GatewayConnector) GetRecommendations(books *[]models.Book, prefs *models.PreferencesList) (*[]models.Book, error) {
-	url := fmt.Sprintf(gc.config.CatalogueAddress + gc.config.ApiPath)
-	booksdata, err := json.Marshal(books)
+	url := fmt.Sprintf(gc.config.RecommendationsAddress + gc.config.ApiPath + "recommendations")
+	info := &models.RecomendationsInfo{
+		Books: *books,
+		Prefs: *prefs,
+	}
+	data, err := json.Marshal(info)
 	if err != nil {
 		fmt.Println("Failed to encode input data")
 		return nil, err
 	}
-	prefsdata, err := json.Marshal(prefs)
-	if err != nil {
-		fmt.Println("Failed to encode input data")
-		return nil, err
-	}
-	request, err := http.NewRequest("GET", url, bytes.NewReader(append(booksdata, prefsdata...)))
+	request, err := http.NewRequest("GET", url, bytes.NewReader(data))
 	if err != nil {
 		fmt.Println("Failed to create an http request")
 		return nil, err
@@ -95,7 +94,7 @@ func (gc *GatewayConnector) GetRecommendations(books *[]models.Book, prefs *mode
 		return nil, err
 	}
 
-	var res *[]models.Book
+	res := &[]models.Book{}
 	err = json.NewDecoder(response.Body).Decode(res)
 	if err != nil {
 		fmt.Println("Failed to decode data from internal service")

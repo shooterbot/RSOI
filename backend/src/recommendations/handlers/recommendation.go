@@ -31,22 +31,15 @@ func (rh *RecommendationsHandlers) GetRecommendations(w http.ResponseWriter, r *
 	}(r.Body)
 
 	decoder := json.NewDecoder(r.Body)
-	books := &[]models.Book{}
-	err := decoder.Decode(books)
-	if err != nil {
-		fmt.Println("Failed to decode the received json")
-		writeError(w, "Bad json given as input", http.StatusBadRequest)
-		return
-	}
-	prefs := &models.PreferencesList{}
-	err = decoder.Decode(prefs)
+	info := &models.RecomendationsInfo{}
+	err := decoder.Decode(info)
 	if err != nil {
 		fmt.Println("Failed to decode the received json")
 		writeError(w, "Bad json given as input", http.StatusBadRequest)
 		return
 	}
 
-	rec := rh.rc.GetRecommendations(*books, prefs)
+	rec := rh.rc.GetRecommendations(info.Books, &info.Prefs)
 
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(rec)

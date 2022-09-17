@@ -26,10 +26,10 @@ func NewGatewayUsecase(connector connector.IGatewayConnector) *GatewayUsecase {
 func (gc *GatewayUsecase) GetRecommendations(userUuid string) (*[]models.Book, gateway_error.GatewayError) {
 	var res *[]models.Book = nil
 	prefs, gerr := gc.GetUserPreferences(userUuid)
-	if gerr.Code != gateway_error.Ok {
+	if gerr.Code == gateway_error.Ok {
 		var books *[]models.Book
 		books, gerr = gc.GetCatalogue()
-		if gerr.Code != gateway_error.Ok {
+		if gerr.Code == gateway_error.Ok {
 			rec, err := gc.recommendationCB.Call(func() (interface{}, error) { return gc.connector.GetRecommendations(books, prefs) })
 			if err == nil {
 				res = rec.(*[]models.Book)

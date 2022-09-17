@@ -64,11 +64,11 @@ func get_attributes(lib []models.Book) []attributes {
 		for _, tag := range tags {
 			var i int
 			for i = 0; i < len(book.Tags) && book.Tags[i] != tag; i++ {
-			}
-			if book.Tags[i] == tag {
-				attr = append(attr, 1)
-			} else {
-				attr = append(attr, 0)
+				if book.Tags[i] == tag {
+					attr = append(attr, 1)
+				} else {
+					attr = append(attr, 0)
+				}
 			}
 		}
 		res = append(res, attr)
@@ -85,7 +85,7 @@ func (rc *RecommendationsUsecase) GetRecommendations(lib []models.Book, prefs *m
 
 	booksAttr := get_attributes(lib)
 
-	if len(prefs.Likes) == 0 {
+	if len(prefs.Likes) != 0 {
 		for _, id := range prefs.Likes {
 			for i, dif := range difference(id, booksAttr) {
 				like_res[i] += dif
@@ -93,7 +93,7 @@ func (rc *RecommendationsUsecase) GetRecommendations(lib []models.Book, prefs *m
 		}
 		len1 = len(prefs.Likes)
 	}
-	if len(prefs.Dislikes) == 0 {
+	if len(prefs.Dislikes) != 0 {
 		for _, id := range prefs.Dislikes {
 			for i, dif := range difference(id, booksAttr) {
 				unlike_res[i] += dif
@@ -117,7 +117,7 @@ func (rc *RecommendationsUsecase) GetRecommendations(lib []models.Book, prefs *m
 		dists[i] = like_res[i] - unlike_res[i] + m
 	}
 
-	sort.Slice(lib, func(i, j int) bool { return dists[lib[i].Id] > dists[lib[j].Id] })
+	sort.Slice(lib, func(i, j int) bool { return dists[lib[i].Id-1] > dists[lib[j].Id-1] })
 
 	return lib
 }

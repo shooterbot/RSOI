@@ -2,9 +2,8 @@ package server
 
 import (
 	"RSOI/src/database/pgdb"
-	"RSOI/src/users/handlers"
-	"RSOI/src/users/repositories/repo_implementation"
-	"RSOI/src/users/usecases/uc_implementation"
+	"RSOI/src/recommendations/handlers"
+	"RSOI/src/recommendations/usecases/uc_implementation"
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -25,13 +24,9 @@ func RunServer(address string, connectionString string) error {
 		fmt.Println("Successfully connected to postgres database")
 	}
 
-	ur := repo_implementation.NewUsersRepository(manager)
-	uc := uc_implementation.NewUsersUsecase(ur)
-	uh := handlers.NewUsersHandlers(uc)
+	rh := handlers.NewRecommendationsHandlers(&uc_implementation.RecommendationsUsecase{})
 
-	apiRouter.HandleFunc("/users", uh.CreateUser).Methods(http.MethodPost)
-	apiRouter.HandleFunc("/sessions", uh.LoginUser).Methods(http.MethodPost)
-	apiRouter.HandleFunc("/users/{userUuid:[0-9|a-z|\\-]+}/preferences", uh.GetUserPreferences).Methods(http.MethodGet)
+	apiRouter.HandleFunc("/recommendations", rh.GetRecommendations).Methods(http.MethodGet)
 
 	server := http.Server{
 		Addr:    address,
@@ -46,6 +41,6 @@ func RunServer(address string, connectionString string) error {
 		os.Exit(0)
 	}()
 
-	fmt.Printf("Users system server is running on %s\n", address)
+	fmt.Printf("Recommendations system server is running on %s\n", address)
 	return server.ListenAndServe()
 }
