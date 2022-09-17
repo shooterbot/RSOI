@@ -141,3 +141,25 @@ func (gc *GatewayConnector) AddUserScore(username string, bookUuid string, score
 	}
 	return err
 }
+
+func (gc *GatewayConnector) CreateUser(user *models.User) error {
+	url := fmt.Sprintf(gc.config.UsersAddress + gc.config.ApiPath + "users")
+	data, err := json.Marshal(user)
+	if err != nil {
+		fmt.Println("Failed to encode input data")
+		err = errors.New("Encoding error")
+		return err
+	}
+	request, err := http.NewRequest("POST", url, bytes.NewReader(data))
+	if err != nil {
+		fmt.Println("Failed to create an http request")
+		return err
+	}
+
+	client := &http.Client{}
+	_, err = client.Do(request)
+	if err != nil {
+		fmt.Println("Internal service failed to add user score")
+	}
+	return err
+}

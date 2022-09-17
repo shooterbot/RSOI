@@ -14,8 +14,8 @@ type GatewayUsecase struct {
 	recommendationCB usecases.CircuitBreaker
 }
 
-func NewGatewayUsecase(connector connector.IGatewayConnector) GatewayUsecase {
-	return GatewayUsecase{
+func NewGatewayUsecase(connector connector.IGatewayConnector) *GatewayUsecase {
+	return &GatewayUsecase{
 		connector:        connector,
 		catalogueCB:      *usecases.NewCircuitBreaker(50),
 		usersCB:          *usecases.NewCircuitBreaker(50),
@@ -23,7 +23,7 @@ func NewGatewayUsecase(connector connector.IGatewayConnector) GatewayUsecase {
 	}
 }
 
-func (gc GatewayUsecase) GetRecommendations(userUuid string) (*[]models.Book, gateway_error.GatewayError) {
+func (gc *GatewayUsecase) GetRecommendations(userUuid string) (*[]models.Book, gateway_error.GatewayError) {
 	var res *[]models.Book = nil
 	prefs, gerr := gc.GetUserPreferences(userUuid)
 	if gerr.Code != gateway_error.Ok {
@@ -41,7 +41,7 @@ func (gc GatewayUsecase) GetRecommendations(userUuid string) (*[]models.Book, ga
 	return res, gerr
 }
 
-func (gc GatewayUsecase) GetUserPreferences(uuid string) (*models.PreferencesList, gateway_error.GatewayError) {
+func (gc *GatewayUsecase) GetUserPreferences(uuid string) (*models.PreferencesList, gateway_error.GatewayError) {
 	var res *models.PreferencesList
 	code := gateway_error.Ok
 	prefs, err := gc.usersCB.Call(func() (interface{}, error) { return gc.connector.GetUserPreferences(uuid) })
@@ -54,7 +54,7 @@ func (gc GatewayUsecase) GetUserPreferences(uuid string) (*models.PreferencesLis
 	return res, gateway_error.GatewayError{Err: err, Code: code}
 }
 
-func (gc GatewayUsecase) GetCatalogue() (*[]models.Book, gateway_error.GatewayError) {
+func (gc *GatewayUsecase) GetCatalogue() (*[]models.Book, gateway_error.GatewayError) {
 	var res *[]models.Book
 	code := gateway_error.Ok
 	books, err := gc.catalogueCB.Call(func() (interface{}, error) { return gc.connector.GetCatalogue() })
@@ -76,6 +76,15 @@ func (gc *GatewayUsecase) AddUserBookScore(bookUuid string, username string, sco
 		if err != nil {
 			code = gateway_error.Internal
 		}
+	}
+	return gateway_error.GatewayError{Err: err, Code: code}
+}
+
+func (gc *GatewayUsecase) CreateUser(user *models.User) gateway_error.GatewayError {
+	code := gateway_error.Ok
+	err := gc.connector.CreateUser(user)
+	if err != nil {
+		code = gateway_error.Internal
 	}
 	return gateway_error.GatewayError{Err: err, Code: code}
 }

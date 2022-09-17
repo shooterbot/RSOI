@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"RSOI/src/gateway/gateway_error"
+	"RSOI/src/gateway/models"
 	"RSOI/src/gateway/usecases"
 	"encoding/json"
 	"fmt"
@@ -51,6 +52,57 @@ func (gh *GatewayHandlers) GetRecommendations(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		fmt.Println("Encoding json error: ", err)
 		http.Error(w, "Failed to encode data to json", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (gh *GatewayHandlers) GetCatalogue(w http.ResponseWriter, r *http.Request) {
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			fmt.Println("Failed to close response body")
+		}
+	}(r.Body)
+
+	rec, ret := gh.gc.GetCatalogue()
+	if ret.Code != gateway_error.Ok {
+		fmt.Println("Failed to get catalogue from internal service")
+		writeError(w, "Error while getting catalogue", http.StatusServiceUnavailable)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	err := json.NewEncoder(w).Encode(rec)
+	if err != nil {
+		fmt.Println("Encoding json error: ", err)
+		http.Error(w, "Failed to encode data to json", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (gh *GatewayHandlers) CreateUser(w http.ResponseWriter, r *http.Request) {
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			fmt.Println("Failed to close response body")
+		}
+	}(r.Body)
+
+	user := &models.User{}
+	err := json.NewDecoder(r.Body).Decode(user)
+	if err != nil {
+		writeError(w, "Bad input given to user creation", http.StatusBadRequest)
+	}
+
+	ret := gh.gc.CreateUser(user)
+
+	if ret.Code == gateway_error.User || ret.Code == gateway_error.Internal {
+		fmt.Println("Failed to get add user score to a book")
+		if ret.Code == gateway_error.Internal {
+			writeError(w, "Error while creating a user", http.StatusServiceUnavailable)
+		} else {
+			writeError(w, "Bad input given to create a user", http.StatusBadRequest)
+		}
 		return
 	}
 }

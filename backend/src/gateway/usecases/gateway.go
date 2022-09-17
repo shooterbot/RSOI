@@ -10,4 +10,5 @@ type IGatewayUsecase interface {
 	GetUserPreferences(uuid string) (*models.PreferencesList, gateway_error.GatewayError)
 	GetCatalogue() (*[]models.Book, gateway_error.GatewayError)
 	AddUserBookScore(bookUuid string, username string, score string) gateway_error.GatewayError
+	CreateUser(user *models.User) gateway_error.GatewayError
 }
