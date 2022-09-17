@@ -9,6 +9,10 @@ type UsersUsecase struct {
 	ur repositories.IUsersRepository
 }
 
+func NewUsersUsecase(repo repositories.IUsersRepository) *UsersUsecase {
+	return &UsersUsecase{ur: repo}
+}
+
 func (uc *UsersUsecase) CreateUser(user *models.User) error {
 	return uc.ur.CreateUser(user)
 }

@@ -15,6 +15,10 @@ type UsersRepository struct {
 	db *pgdb.DBManager
 }
 
+func NewUsersRepository(manager *pgdb.DBManager) *UsersRepository {
+	return &UsersRepository{db: manager}
+}
+
 func (ur *UsersRepository) CreateUser(user *models.User) error {
 	_, err := ur.db.Exec(createUser, user.Username, user.Password)
 	if err != nil {
