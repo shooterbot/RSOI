@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 )
 
 type GatewayConnector struct {
@@ -105,14 +106,15 @@ func (gc *GatewayConnector) GetRecommendations(books *[]models.Book, prefs *mode
 	return res, err
 }
 
-func (gc *GatewayConnector) AddBookScore(bookUuid, score string) error {
-	url := fmt.Sprintf(gc.config.CatalogueAddress+gc.config.ApiPath+"books/%s", bookUuid)
+func (gc *GatewayConnector) AddBookScore(bookUuid string, likesdiff, dislikesdiff int) error {
+	url := fmt.Sprintf(gc.config.CatalogueAddress+gc.config.ApiPath+"catalogue/%s", bookUuid)
 	request, err := http.NewRequest("PATCH", url, nil)
 	if err != nil {
 		fmt.Println("Failed to create an http request")
 		return err
 	}
-	request.Header.Set("Score", score)
+	request.Header.Set("Likes", strconv.Itoa(likesdiff))
+	request.Header.Set("Dislikes", strconv.Itoa(dislikesdiff))
 
 	client := &http.Client{}
 	_, err = client.Do(request)
@@ -122,23 +124,30 @@ func (gc *GatewayConnector) AddBookScore(bookUuid, score string) error {
 	return err
 }
 
-func (gc *GatewayConnector) AddUserScore(username string, bookUuid string, score string) error {
+func (gc *GatewayConnector) AddUserScore(username string, bookUuid string, score string) (bool, error) {
 	url := fmt.Sprintf(gc.config.UsersAddress + gc.config.ApiPath + "preferences")
 	request, err := http.NewRequest("PUT", url, nil)
 	if err != nil {
 		fmt.Println("Failed to create an http request")
-		return err
+		return false, err
 	}
 	request.Header.Set("Username", username)
 	request.Header.Set("Book-UUID", bookUuid)
 	request.Header.Set("Score", score)
 
 	client := &http.Client{}
-	_, err = client.Do(request)
+	response, err := client.Do(request)
 	if err != nil {
 		fmt.Println("Internal service failed to add user score")
 	}
-	return err
+	var change bool
+	err = json.NewDecoder(response.Body).Decode(&change)
+	if err != nil {
+		fmt.Println("Failed to decode data from internal service")
+		err = errors.New("Decoding error")
+		return false, err
+	}
+	return change, err
 }
 
 func (gc *GatewayConnector) CreateUser(user *models.User) error {

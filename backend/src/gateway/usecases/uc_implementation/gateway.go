@@ -5,6 +5,7 @@ import (
 	"RSOI/src/gateway/gateway_error"
 	"RSOI/src/gateway/models"
 	"RSOI/src/gateway/usecases"
+	"errors"
 )
 
 type GatewayUsecase struct {
@@ -67,14 +68,31 @@ func (gc *GatewayUsecase) GetCatalogue() (*[]models.Book, gateway_error.GatewayE
 }
 
 func (gc *GatewayUsecase) AddUserBookScore(bookUuid string, username string, score string) gateway_error.GatewayError {
+	var likesdiff, dislikesdiff int
 	code := gateway_error.Ok
-	err := gc.connector.AddBookScore(bookUuid, score)
+	changed, err := gc.connector.AddUserScore(username, bookUuid, score)
 	if err != nil {
 		code = gateway_error.Internal
 	} else {
-		err = gc.connector.AddUserScore(username, bookUuid, score)
-		if err != nil {
-			code = gateway_error.Internal
+		if score == "like" {
+			likesdiff = 1
+			if changed {
+				dislikesdiff = -1
+			}
+		} else if score == "dislike" {
+			dislikesdiff = 1
+			if changed {
+				likesdiff = -1
+			}
+		} else {
+			err = errors.New("Wrong parameter")
+			code = gateway_error.User
+		}
+		if err == nil {
+			err = gc.connector.AddBookScore(bookUuid, likesdiff, dislikesdiff)
+			if err != nil {
+				code = gateway_error.Internal
+			}
 		}
 	}
 	return gateway_error.GatewayError{Err: err, Code: code}

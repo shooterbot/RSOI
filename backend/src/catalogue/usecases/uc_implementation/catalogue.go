@@ -16,3 +16,11 @@ func NewBooksUsecase(repo repositories.IBooksRepository) *BooksUsecase {
 func (bc *BooksUsecase) GetCatalogue() ([]models.Book, error) {
 	return bc.br.GetAll()
 }
+
+func (bc *BooksUsecase) UpdateBookScore(uuid string, likesdiff, dislikesdiff int) error {
+	err := bc.br.UpdateBookLikes(uuid, likesdiff)
+	if err == nil {
+		err = bc.br.UpdateBookDislikes(uuid, dislikesdiff)
+	}
+	return err
+}
