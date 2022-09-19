@@ -30,6 +30,7 @@ func RunServer(address string, connectionString string) error {
 	bh := handlers.NewBooksHandlers(bc)
 
 	apiRouter.HandleFunc("/catalogue", bh.GetCatalogue).Methods(http.MethodGet)
+	apiRouter.HandleFunc("/catalogue/{bookUuid:[0-9|a-z|\\-]+}", bh.UpdateBookScore).Methods(http.MethodPatch)
 
 	server := http.Server{
 		Addr:    address,
