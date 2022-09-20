@@ -14,12 +14,12 @@ const (
 	getUserLikes     = `select liked from users_likes where user_id in (select id from users where uid=$1);`
 	getUserDislikes  = `select disliked from users_dislikes where user_id in (select id from users where uid=$1);`
 	getUserUuid      = `select uid from users where username = $1`
-	checkUserLike    = `select from users_likes where user_id in (select id from users where uid=$1) and book_id in (select id from books where uid=$2)`
-	checkUserDislike = `select from users_dislikes where user_id in (select id from users where uid=$1) and book_id in (select id from books where uid=$2)`
+	checkUserLike    = `select from users_likes where user_id in (select id from users where uid=$1) and liked=$2`
+	checkUserDislike = `select from users_dislikes where user_id in (select id from users where uid=$1) and disliked=$2`
 	setLike          = `insert into users_likes(user_id, liked) values((select first_value(id) over (order by id) from users where uid = $1), $2);`
 	setDislike       = `insert into users_dislikes(user_id, disliked) values((select first_value(id) over (order by id) from users where uid = $1), $2);`
 	removeLike       = `delete from users_likes where user_id in (select id from users where uid=$1) and liked = $2`
-	removeDislike    = `delete from users_dislikes where user_id in (select id from users where uid=$1) and liked = $2`
+	removeDislike    = `delete from users_dislikes where user_id in (select id from users where uid=$1) and disliked = $2`
 )
 
 type UsersRepository struct {
@@ -75,7 +75,7 @@ func (ur *UsersRepository) GetUserUuid(username string) (string, error) {
 		fmt.Printf("Failed to get user uuid from db\n")
 		return "", err
 	}
-	return utility.BytesToString(data[0][0]), nil
+	return utility.BytesToUid(data[0][0]), nil
 }
 
 func (ur *UsersRepository) GetUserPreference(userUuid string, bookUuid string) (string, error) {

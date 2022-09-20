@@ -31,6 +31,7 @@ func RunServer(address string, connectionString string) error {
 
 	apiRouter.HandleFunc("/users", uh.CreateUser).Methods(http.MethodPost)
 	apiRouter.HandleFunc("/sessions", uh.LoginUser).Methods(http.MethodPost)
+	apiRouter.HandleFunc("/preferences", uh.SetUserScore).Methods(http.MethodPut)
 	apiRouter.HandleFunc("/users/{userUuid:[0-9|a-z|\\-]+}/preferences", uh.GetUserPreferences).Methods(http.MethodGet)
 
 	server := http.Server{
