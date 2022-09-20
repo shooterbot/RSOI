@@ -4,14 +4,22 @@ import (
 	"RSOI/src/database/pgdb"
 	"RSOI/src/users/models"
 	"RSOI/src/utility"
+	"errors"
 	"fmt"
 )
 
 const (
-	createUser      = `insert into users(username, password) values($1, crypt($2, gen_salt('bf')));`
-	loginUser       = `select from users where username=$1 and password=crypt($2, password);`
-	getUserLikes    = `select liked from users_likes where user_id in (select id from users where uid=$1);`
-	getUserDislikes = `select disliked from users_dislikes where user_id in (select id from users where uid=$1);`
+	createUser       = `insert into users(username, password) values($1, crypt($2, gen_salt('bf')));`
+	loginUser        = `select from users where username=$1 and password=crypt($2, password);`
+	getUserLikes     = `select liked from users_likes where user_id in (select id from users where uid=$1);`
+	getUserDislikes  = `select disliked from users_dislikes where user_id in (select id from users where uid=$1);`
+	getUserUuid      = `select uid from users where username = $1`
+	checkUserLike    = `select from users_likes where user_id in (select id from users where uid=$1) and book_id in (select id from books where uid=$2)`
+	checkUserDislike = `select from users_dislikes where user_id in (select id from users where uid=$1) and book_id in (select id from books where uid=$2)`
+	setLike          = `insert into users_likes(user_id, liked) values((select first_value(id) over (order by id) from users where uid = $1), $2);`
+	setDislike       = `insert into users_dislikes(user_id, disliked) values((select first_value(id) over (order by id) from users where uid = $1), $2);`
+	removeLike       = `delete from users_likes where user_id in (select id from users where uid=$1) and liked = $2`
+	removeDislike    = `delete from users_dislikes where user_id in (select id from users where uid=$1) and liked = $2`
 )
 
 type UsersRepository struct {
@@ -59,4 +67,65 @@ func (ur *UsersRepository) GetUserPreferences(uuid string) (models.PreferencesLi
 		res.Dislikes = append(res.Dislikes, utility.BytesToInt(row[0]))
 	}
 	return res, err
+}
+
+func (ur *UsersRepository) GetUserUuid(username string) (string, error) {
+	data, err := ur.db.Query(getUserUuid, username)
+	if err != nil {
+		fmt.Printf("Failed to get user uuid from db\n")
+		return "", err
+	}
+	return utility.BytesToString(data[0][0]), nil
+}
+
+func (ur *UsersRepository) GetUserPreference(userUuid string, bookUuid string) (string, error) {
+	data, err := ur.db.Query(checkUserLike, userUuid, bookUuid)
+	if err != nil {
+		return "none", err
+	}
+	if len(data) != 0 {
+		return "like", nil
+	} else {
+		data, err = ur.db.Query(checkUserDislike, userUuid, bookUuid)
+		if err != nil {
+			return "none", err
+		}
+		if len(data) != 0 {
+			return "dislike", nil
+		} else {
+			return "none", nil
+		}
+	}
+}
+
+func (ur *UsersRepository) SetLike(userUuid string, bookUuid string) error {
+	affected, err := ur.db.Exec(setLike, userUuid, bookUuid)
+	if err == nil && affected == 0 {
+		err = errors.New("User's like is already set")
+	}
+	return err
+}
+
+func (ur *UsersRepository) SetDislike(userUuid string, bookUuid string) error {
+	affected, err := ur.db.Exec(setDislike, userUuid, bookUuid)
+	if err == nil && affected == 0 {
+		err = errors.New("User's dislike is already set")
+	}
+	return err
+}
+
+func (ur *UsersRepository) RemoveLike(userUuid string, bookUuid string) error {
+	affected, err := ur.db.Exec(removeLike, userUuid, bookUuid)
+	if err == nil && affected == 0 {
+		err = errors.New("User's like was not set")
+	}
+	return err
+}
+
+func (ur *UsersRepository) RemoveDislike(userUuid string, bookUuid string) error {
+	affected, err := ur.db.Exec(removeDislike, userUuid, bookUuid)
+	if err == nil && affected == 0 {
+		err = errors.New("User's dislike was not set")
+	}
+	return err
 }

@@ -12,11 +12,13 @@ drop table if exists users_likes;
 create table if not exists users_likes
 (
 	user_id int not null,
-	liked int not null
+	liked uuid not null,
+	foreign key (user_id) references users(id)
 );
 drop table if exists users_dislikes;
 create table if not exists users_dislikes
 (
 	user_id int not null,
-	disliked int not null
+	disliked uuid not null,
+	foreign key (user_id) references users(id)
 );

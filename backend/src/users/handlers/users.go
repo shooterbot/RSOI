@@ -41,7 +41,7 @@ func (uh *UsersHandlers) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		fmt.Println("Failed to create new user")
-		writeError(w, "Bad input given to create a user", http.StatusInternalServerError)
+		writeError(w, "Failed to create new user", http.StatusInternalServerError)
 		return
 	}
 }
@@ -63,8 +63,8 @@ func (uh *UsersHandlers) LoginUser(w http.ResponseWriter, r *http.Request) {
 	checked, err := uh.uc.LoginUser(user)
 
 	if err != nil {
-		fmt.Println("Failed to create new user")
-		writeError(w, "Bad input given to create a user", http.StatusInternalServerError)
+		fmt.Println("Failed to authenficate the user")
+		writeError(w, "Failed to authenficate the user", http.StatusInternalServerError)
 		return
 	}
 
@@ -93,13 +93,42 @@ func (uh *UsersHandlers) GetUserPreferences(w http.ResponseWriter, r *http.Reque
 	prefs, err := uh.uc.GetUserPreferences(uUuid)
 
 	if err != nil {
-		fmt.Println("Failed to create new user")
-		writeError(w, "Bad input given to create a user", http.StatusInternalServerError)
+		fmt.Println("Failed to get user preferences")
+		writeError(w, "Failed to get user preferences", http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(prefs)
+	if err != nil {
+		fmt.Println("Encoding json error: ", err)
+		http.Error(w, "Failed to encode data to json", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (uh *UsersHandlers) SetUserScore(w http.ResponseWriter, r *http.Request) {
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			fmt.Println("Failed to close response body")
+		}
+	}(r.Body)
+
+	username := r.Header.Get("Username")
+	bookUuid := r.Header.Get("Book-UUID")
+	score := r.Header.Get("Score")
+
+	changed, err := uh.uc.SetUserScore(username, bookUuid, score)
+
+	if err != nil {
+		fmt.Println("Failed to set user score")
+		writeError(w, "Failed to set user score", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(changed)
 	if err != nil {
 		fmt.Println("Encoding json error: ", err)
 		http.Error(w, "Failed to encode data to json", http.StatusInternalServerError)
