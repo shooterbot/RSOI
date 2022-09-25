@@ -18,8 +18,8 @@ type CircuitBreaker struct {
 	state    int
 }
 
-func NewCircuitBreaker(failsMax int) *CircuitBreaker {
-	return &CircuitBreaker{
+func NewCircuitBreaker(failsMax int) CircuitBreaker {
+	return CircuitBreaker{
 		FailsMax: failsMax,
 		fails:    0,
 		active:   false,

@@ -4,8 +4,10 @@ import (
 	"RSOI/src/gateway/connector"
 	"RSOI/src/gateway/gateway_error"
 	"RSOI/src/gateway/models"
+	"RSOI/src/gateway/request_queue"
 	"RSOI/src/gateway/usecases"
 	"errors"
+	"time"
 )
 
 type GatewayUsecase struct {
@@ -13,15 +15,23 @@ type GatewayUsecase struct {
 	catalogueCB      usecases.CircuitBreaker
 	usersCB          usecases.CircuitBreaker
 	recommendationCB usecases.CircuitBreaker
+	booksQueue       request_queue.QueueRepeater
 }
 
 func NewGatewayUsecase(connector connector.IGatewayConnector) *GatewayUsecase {
-	return &GatewayUsecase{
+	uc := &GatewayUsecase{
 		connector:        connector,
-		catalogueCB:      *usecases.NewCircuitBreaker(50),
-		usersCB:          *usecases.NewCircuitBreaker(50),
-		recommendationCB: *usecases.NewCircuitBreaker(50),
+		catalogueCB:      usecases.NewCircuitBreaker(50),
+		usersCB:          usecases.NewCircuitBreaker(50),
+		recommendationCB: usecases.NewCircuitBreaker(50),
+		booksQueue:       request_queue.NewQueueRepeater(),
 	}
+	uc.booksQueue.Start()
+	return uc
+}
+
+func (gc *GatewayUsecase) Close() {
+	gc.booksQueue.Stop()
 }
 
 func (gc *GatewayUsecase) GetRecommendations(userUuid string) (*[]models.Book, gateway_error.GatewayError) {
@@ -89,10 +99,7 @@ func (gc *GatewayUsecase) AddUserBookScore(bookUuid string, username string, sco
 			code = gateway_error.User
 		}
 		if err == nil {
-			err = gc.connector.AddBookScore(bookUuid, likesdiff, dislikesdiff)
-			if err != nil {
-				code = gateway_error.Internal
-			}
+			gc.booksQueue.AddRequest(func() error { return gc.connector.AddBookScore(bookUuid, likesdiff, dislikesdiff) }, 10*time.Second)
 		}
 	}
 	return gateway_error.GatewayError{Err: err, Code: code}
