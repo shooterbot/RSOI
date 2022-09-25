@@ -1,0 +1,64 @@
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  build:
+    name: Autograding
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17.1
+
+      - name: Deploy catalogue
+        uses: akhileshns/heroku-deploy@v3.4.6
+        with:
+          heroku_api_key: 6efa036e-6caf-4c74-ab48-ab38d6faf878
+          heroku_app_name: rsoi-catalogue-ivanov
+          heroku_email: shooterbot@gmail.com
+          usedocker: true
+          docker_build_args: SERVICE
+        env:
+          SERVICE: catalogue
+
+      - name: Deploy users
+        uses: akhileshns/heroku-deploy@v3.4.6
+        with:
+          heroku_api_key: 6efa036e-6caf-4c74-ab48-ab38d6faf878
+          heroku_app_name: rsoi-users-ivanov
+          heroku_email: shooterbot@gmail.com
+          usedocker: true
+          docker_build_args: SERVICE
+        env:
+          SERVICE: users
+
+      - name: Deploy recommendations
+        uses: akhileshns/heroku-deploy@v3.4.6
+        with:
+          heroku_api_key: 6efa036e-6caf-4c74-ab48-ab38d6faf878
+          heroku_app_name: rsoi-recommendations-ivanov
+          heroku_email: shooterbot@gmail.com
+          usedocker: true
+          docker_build_args: SERVICE
+        env:
+          SERVICE: recommendations
+
+      - name: Deploy gateway
+        uses: akhileshns/heroku-deploy@v3.4.6
+        with:
+          heroku_api_key: 6efa036e-6caf-4c74-ab48-ab38d6faf878
+          heroku_app_name: rsoi-gateway-ivanov
+          heroku_email: shooterbot@gmail.com
+          usedocker: true
+          docker_build_args: SERVICE
+        env:
+          SERVICE: gateway
