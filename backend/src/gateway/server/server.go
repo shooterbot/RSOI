@@ -4,6 +4,7 @@ import (
 	"RSOI/src/gateway/connector"
 	"RSOI/src/gateway/connector/connector_implementation"
 	"RSOI/src/gateway/handlers"
+	"RSOI/src/gateway/middlewares"
 	"RSOI/src/gateway/usecases/uc_implementation"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -18,8 +19,9 @@ func RunServer(address string, config *connector.Config) error {
 	con := connector_implementation.NewGatewayConnector(config)
 	gc := uc_implementation.NewGatewayUsecase(con)
 	gh := handlers.NewGatewayHandlers(gc)
-	//defer gc.Close()
+	defer gc.Close()
 
+	apiRouter.Use(middlewares.AuthMiddleware)
 	apiRouter.HandleFunc("/catalogue", gh.GetCatalogue).Methods(http.MethodGet)
 	apiRouter.HandleFunc("/users", gh.CreateUser).Methods(http.MethodPost)
 	apiRouter.HandleFunc("/catalogue/{bookUuid:[0-9|a-z|\\-]+}", gh.AddUserBookScore).Methods(http.MethodPatch)
