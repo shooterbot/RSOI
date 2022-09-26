@@ -23,7 +23,7 @@ jobs:
       - name: Deploy catalogue
         uses: akhileshns/heroku-deploy@v3.4.6
         with:
-          heroku_api_key: 6efa036e-6caf-4c74-ab48-ab38d6faf878
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
           heroku_app_name: rsoi-catalogue-ivanov
           heroku_email: shooterbot@gmail.com
           usedocker: true
@@ -34,7 +34,7 @@ jobs:
       - name: Deploy users
         uses: akhileshns/heroku-deploy@v3.4.6
         with:
-          heroku_api_key: 6efa036e-6caf-4c74-ab48-ab38d6faf878
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
           heroku_app_name: rsoi-users-ivanov
           heroku_email: shooterbot@gmail.com
           usedocker: true
@@ -45,7 +45,7 @@ jobs:
       - name: Deploy recommendations
         uses: akhileshns/heroku-deploy@v3.4.6
         with:
-          heroku_api_key: 6efa036e-6caf-4c74-ab48-ab38d6faf878
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
           heroku_app_name: rsoi-recommendations-ivanov
           heroku_email: shooterbot@gmail.com
           usedocker: true
@@ -56,7 +56,7 @@ jobs:
       - name: Deploy gateway
         uses: akhileshns/heroku-deploy@v3.4.6
         with:
-          heroku_api_key: 6efa036e-6caf-4c74-ab48-ab38d6faf878
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
           heroku_app_name: rsoi-gateway-ivanov
           heroku_email: shooterbot@gmail.com
           usedocker: true
