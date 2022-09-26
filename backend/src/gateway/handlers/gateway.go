@@ -40,6 +40,15 @@ func (gh *GatewayHandlers) GetRecommendations(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	tokenUsername := r.Context().Value("Username")
+	tokenUuid := r.Context().Value("UUID")
+	if tokenUuid == "" || tokenUsername == "" || tokenUuid != userUuid[0] {
+		fmt.Println("Failed to verify user authorization")
+		http.Error(w, "User is not authorized", http.StatusUnauthorized)
+		return
+
+	}
+
 	rec, ret := gh.gc.GetRecommendations(userUuid[0])
 	if ret.Code != gateway_error.Ok {
 		fmt.Println("Failed to get recommendations from internal service")
@@ -125,6 +134,15 @@ func (gh *GatewayHandlers) AddUserBookScore(w http.ResponseWriter, r *http.Reque
 
 	username := r.Header.Get("User-Name")
 	score := r.Header.Get("Score")
+
+	tokenUsername := r.Context().Value("Username")
+	tokenUuid := r.Context().Value("UUID")
+	if tokenUuid == "" || tokenUsername == "" || tokenUsername != username {
+		fmt.Println("Failed to verify user authorization")
+		http.Error(w, "User is not authorized", http.StatusUnauthorized)
+		return
+
+	}
 
 	ret := gh.gc.AddUserBookScore(bookUuid, username, score)
 
