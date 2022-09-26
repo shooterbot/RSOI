@@ -10,7 +10,7 @@ ARG SERVICE
 COPY ./backend/src/$SERVICE ./src/$SERVICE
 COPY ./backend/src/database ./src/database
 COPY ./backend/src/utility ./src/utility
-COPY ./backend/src/utility ./src/config
+COPY ./backend/src/config ./src/config
 RUN go mod init RSOI
 RUN go mod tidy
 
