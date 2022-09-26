@@ -11,7 +11,6 @@ import (
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		var id = 0
 
 		authHeader := r.Header.Get("Authorization")
 		if authHeader != "" {
@@ -20,14 +19,16 @@ func AuthMiddleware(next http.Handler) http.Handler {
 
 			claims, err := algorithm.DecodeAndValidate(authToken)
 			if err == nil {
-				identificator, err := claims.Get("Identificator")
+				uuid, _ := claims.Get("UUID")
 				if err == nil {
-					id = int(identificator.(float64))
+					ctx = context.WithValue(ctx, "UUID", uuid)
+				}
+				username, _ := claims.Get("Username")
+				if err == nil {
+					ctx = context.WithValue(ctx, "Username", username)
 				}
 			}
 		}
-
-		ctx = context.WithValue(ctx, "id", id)
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
 	})
