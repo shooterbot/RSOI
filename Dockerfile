@@ -4,12 +4,13 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 ENV GO111MODULE=on
 
-WORKDIR /app/backend
+WORKDIR /app
 
 ARG SERVICE
-COPY ./src/$SERVICE ./src/$SERVICE
-COPY ./src/database ./src/database
-COPY ./src/utility ./src/utility
+COPY ./backend/src/$SERVICE ./src/$SERVICE
+COPY ./backend/src/database ./src/database
+COPY ./backend/src/utility ./src/utility
+COPY ./backend/src/utility ./src/config
 RUN go mod init RSOI
 RUN go mod tidy
 
