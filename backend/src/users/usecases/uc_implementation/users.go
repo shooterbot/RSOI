@@ -14,12 +14,20 @@ func NewUsersUsecase(repo repositories.IUsersRepository) *UsersUsecase {
 	return &UsersUsecase{ur: repo}
 }
 
-func (uc *UsersUsecase) CreateUser(user *models.User) error {
+func (uc *UsersUsecase) CreateUser(user *models.UserAuthData) error {
 	return uc.ur.CreateUser(user)
 }
 
-func (uc *UsersUsecase) LoginUser(user *models.User) (bool, error) {
-	return uc.ur.LoginUser(user)
+func (uc *UsersUsecase) LoginUser(user *models.UserAuthData) (*models.User, error) {
+	var res *models.User = nil
+	uuid, err := uc.ur.LoginUser(user)
+	if err == nil {
+		res = &models.User{
+			Username: user.Username,
+			UUID:     uuid,
+		}
+	}
+	return res, err
 }
 
 func (uc *UsersUsecase) GetUserPreferences(uuid string) (models.PreferencesList, error) {

@@ -10,7 +10,7 @@ import (
 
 const (
 	createUser       = `insert into users(username, password) values($1, crypt($2, gen_salt('bf')));`
-	loginUser        = `select from users where username=$1 and password=crypt($2, password);`
+	loginUser        = `select uuid from users where username=$1 and password=crypt($2, password);`
 	getUserLikes     = `select liked from users_likes where user_id in (select id from users where uid=$1);`
 	getUserDislikes  = `select disliked from users_dislikes where user_id in (select id from users where uid=$1);`
 	getUserUuid      = `select uid from users where username = $1`
@@ -30,7 +30,7 @@ func NewUsersRepository(manager *pgdb.DBManager) *UsersRepository {
 	return &UsersRepository{db: manager}
 }
 
-func (ur *UsersRepository) CreateUser(user *models.User) error {
+func (ur *UsersRepository) CreateUser(user *models.UserAuthData) error {
 	_, err := ur.db.Exec(createUser, user.Username, user.Password)
 	if err != nil {
 		fmt.Printf("Failed to add new user to db\n")
@@ -38,13 +38,18 @@ func (ur *UsersRepository) CreateUser(user *models.User) error {
 	return err
 }
 
-func (ur *UsersRepository) LoginUser(user *models.User) (bool, error) {
+func (ur *UsersRepository) LoginUser(user *models.UserAuthData) (string, error) {
 	data, err := ur.db.Query(loginUser, user.Username, user.Password)
 	if err != nil {
 		fmt.Printf("Failed to login user via db\n")
 	}
 
-	return len(data) == 1, err
+	res := ""
+	if len(data) == 1 {
+		res = utility.BytesToUid(data[0][0])
+	}
+
+	return res, err
 }
 
 func (ur *UsersRepository) GetUserPreferences(uuid string) (models.PreferencesList, error) {
@@ -101,7 +106,7 @@ func (ur *UsersRepository) GetUserPreference(userUuid string, bookUuid string) (
 func (ur *UsersRepository) SetLike(userUuid string, bookUuid string) error {
 	affected, err := ur.db.Exec(setLike, userUuid, bookUuid)
 	if err == nil && affected == 0 {
-		err = errors.New("User's like is already set")
+		err = errors.New("UserAuthData's like is already set")
 	}
 	return err
 }
@@ -109,7 +114,7 @@ func (ur *UsersRepository) SetLike(userUuid string, bookUuid string) error {
 func (ur *UsersRepository) SetDislike(userUuid string, bookUuid string) error {
 	affected, err := ur.db.Exec(setDislike, userUuid, bookUuid)
 	if err == nil && affected == 0 {
-		err = errors.New("User's dislike is already set")
+		err = errors.New("UserAuthData's dislike is already set")
 	}
 	return err
 }
@@ -117,7 +122,7 @@ func (ur *UsersRepository) SetDislike(userUuid string, bookUuid string) error {
 func (ur *UsersRepository) RemoveLike(userUuid string, bookUuid string) error {
 	affected, err := ur.db.Exec(removeLike, userUuid, bookUuid)
 	if err == nil && affected == 0 {
-		err = errors.New("User's like was not set")
+		err = errors.New("UserAuthData's like was not set")
 	}
 	return err
 }
@@ -125,7 +130,7 @@ func (ur *UsersRepository) RemoveLike(userUuid string, bookUuid string) error {
 func (ur *UsersRepository) RemoveDislike(userUuid string, bookUuid string) error {
 	affected, err := ur.db.Exec(removeDislike, userUuid, bookUuid)
 	if err == nil && affected == 0 {
-		err = errors.New("User's dislike was not set")
+		err = errors.New("UserAuthData's dislike was not set")
 	}
 	return err
 }

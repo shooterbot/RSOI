@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"RSOI/src/config"
 	"RSOI/src/users/models"
 	"RSOI/src/users/usecases"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/robbert229/jwt"
 	"io"
 	"net/http"
 )
@@ -31,7 +33,7 @@ func (uh *UsersHandlers) CreateUser(w http.ResponseWriter, r *http.Request) {
 		}
 	}(r.Body)
 
-	user := &models.User{}
+	user := &models.UserAuthData{}
 	err := json.NewDecoder(r.Body).Decode(user)
 	if err != nil {
 		writeError(w, "Bad input given to user creation", http.StatusBadRequest)
@@ -54,13 +56,13 @@ func (uh *UsersHandlers) LoginUser(w http.ResponseWriter, r *http.Request) {
 		}
 	}(r.Body)
 
-	user := &models.User{}
-	err := json.NewDecoder(r.Body).Decode(user)
+	userData := &models.UserAuthData{}
+	err := json.NewDecoder(r.Body).Decode(userData)
 	if err != nil {
 		writeError(w, "Bad input given to user creation", http.StatusBadRequest)
 	}
 
-	checked, err := uh.uc.LoginUser(user)
+	user, err := uh.uc.LoginUser(userData)
 
 	if err != nil {
 		fmt.Println("Failed to authenficate the user")
@@ -68,9 +70,31 @@ func (uh *UsersHandlers) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !checked {
-		fmt.Println("User failed authenfication")
+	if user == nil {
+		fmt.Println("UserAuthData failed authenfication")
 		writeError(w, "Authenfication failed", http.StatusBadRequest)
+		return
+	}
+
+	algorithm := jwt.HmacSha256(config.JWTKey)
+	claims := jwt.NewClaim()
+	claims.Set("UUID", user.UUID)
+	claims.Set("Username", user.Username)
+
+	token, err := algorithm.Encode(claims)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, `{"message":"cannot create jwt-token"}`, http.StatusInternalServerError)
+		return
+	}
+	user.JWT = token
+
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(user)
+	if err != nil {
+		fmt.Println("Encoding json error: ", err)
+		http.Error(w, "Failed to encode data to json", http.StatusInternalServerError)
+		return
 	}
 }
 
