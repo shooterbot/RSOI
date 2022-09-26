@@ -106,7 +106,7 @@ func (ur *UsersRepository) GetUserPreference(userUuid string, bookUuid string) (
 func (ur *UsersRepository) SetLike(userUuid string, bookUuid string) error {
 	affected, err := ur.db.Exec(setLike, userUuid, bookUuid)
 	if err == nil && affected == 0 {
-		err = errors.New("UserAuthData's like is already set")
+		err = errors.New("User's like is already set")
 	}
 	return err
 }
@@ -114,7 +114,7 @@ func (ur *UsersRepository) SetLike(userUuid string, bookUuid string) error {
 func (ur *UsersRepository) SetDislike(userUuid string, bookUuid string) error {
 	affected, err := ur.db.Exec(setDislike, userUuid, bookUuid)
 	if err == nil && affected == 0 {
-		err = errors.New("UserAuthData's dislike is already set")
+		err = errors.New("User's dislike is already set")
 	}
 	return err
 }
@@ -122,7 +122,7 @@ func (ur *UsersRepository) SetDislike(userUuid string, bookUuid string) error {
 func (ur *UsersRepository) RemoveLike(userUuid string, bookUuid string) error {
 	affected, err := ur.db.Exec(removeLike, userUuid, bookUuid)
 	if err == nil && affected == 0 {
-		err = errors.New("UserAuthData's like was not set")
+		err = errors.New("User's like was not set")
 	}
 	return err
 }
@@ -130,7 +130,7 @@ func (ur *UsersRepository) RemoveLike(userUuid string, bookUuid string) error {
 func (ur *UsersRepository) RemoveDislike(userUuid string, bookUuid string) error {
 	affected, err := ur.db.Exec(removeDislike, userUuid, bookUuid)
 	if err == nil && affected == 0 {
-		err = errors.New("UserAuthData's dislike was not set")
+		err = errors.New("User's dislike was not set")
 	}
 	return err
 }

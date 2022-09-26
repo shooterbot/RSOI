@@ -123,7 +123,7 @@ func (gh *GatewayHandlers) AddUserBookScore(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	username := r.Header.Get("UserAuthData-Name")
+	username := r.Header.Get("User-Name")
 	score := r.Header.Get("Score")
 
 	ret := gh.gc.AddUserBookScore(bookUuid, username, score)
@@ -171,7 +171,7 @@ func (gh *GatewayHandlers) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !res {
-		fmt.Println("UserAuthData failed authenfication")
+		fmt.Println("User failed authenfication")
 		writeError(w, "Authenfication failed", http.StatusUnauthorized)
 	}
 	w.Header().Set("Content-Type", "application/json")

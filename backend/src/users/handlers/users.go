@@ -71,7 +71,7 @@ func (uh *UsersHandlers) LoginUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if user == nil {
-		fmt.Println("UserAuthData failed authenfication")
+		fmt.Println("User failed authenfication")
 		writeError(w, "Authenfication failed", http.StatusBadRequest)
 		return
 	}
