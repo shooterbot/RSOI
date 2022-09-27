@@ -188,17 +188,9 @@ func (gh *GatewayHandlers) LoginUser(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	if !res {
-		fmt.Println("User failed authenfication")
-		writeError(w, "Authenfication failed", http.StatusUnauthorized)
-	}
+
 	w.Header().Set("Content-Type", "application/json")
-	session := &Session{
-		UserToken: "1",
-		Username:  "me",
-		Id:        1,
-	}
-	err = json.NewEncoder(w).Encode(session)
+	err = json.NewEncoder(w).Encode(res)
 	if err != nil {
 		fmt.Println("Encoding json error: ", err)
 		http.Error(w, "Failed to encode data to json", http.StatusInternalServerError)

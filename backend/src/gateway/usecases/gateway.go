@@ -11,5 +11,5 @@ type IGatewayUsecase interface {
 	GetCatalogue() (*[]models.Book, gateway_error.GatewayError)
 	AddUserBookScore(bookUuid string, username string, score string) gateway_error.GatewayError
 	CreateUser(user *models.User) gateway_error.GatewayError
-	LoginUser(user *models.User) (bool, gateway_error.GatewayError)
+	LoginUser(user *models.User) (*models.Session, gateway_error.GatewayError)
 }

@@ -114,7 +114,7 @@ func (gc *GatewayUsecase) CreateUser(user *models.User) gateway_error.GatewayErr
 	return gateway_error.GatewayError{Err: err, Code: code}
 }
 
-func (gc *GatewayUsecase) LoginUser(user *models.User) (bool, gateway_error.GatewayError) {
+func (gc *GatewayUsecase) LoginUser(user *models.User) (*models.Session, gateway_error.GatewayError) {
 	code := gateway_error.Ok
 	res, err := gc.connector.LoginUser(user)
 	if err != nil {

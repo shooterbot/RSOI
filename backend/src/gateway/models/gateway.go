@@ -25,3 +25,9 @@ type RecomendationsInfo struct {
 	Books []Book          `json:"books"`
 	Prefs PreferencesList `json:"prefs"`
 }
+
+type Session struct {
+	Username string `json:"username"`
+	UUID     string `json:"UUID"`
+	JWT      string `json:"JWT"`
+}

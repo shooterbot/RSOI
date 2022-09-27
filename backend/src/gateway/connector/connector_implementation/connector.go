@@ -172,18 +172,18 @@ func (gc *GatewayConnector) CreateUser(user *models.User) error {
 	return err
 }
 
-func (gc *GatewayConnector) LoginUser(user *models.User) (bool, error) {
+func (gc *GatewayConnector) LoginUser(user *models.User) (*models.Session, error) {
 	url := fmt.Sprintf(gc.config.UsersAddress + gc.config.ApiPath + "sessions")
 	data, err := json.Marshal(user)
 	if err != nil {
 		fmt.Println("Failed to encode input data")
 		err = errors.New("Encoding error")
-		return false, err
+		return nil, err
 	}
 	request, err := http.NewRequest("POST", url, bytes.NewReader(data))
 	if err != nil {
 		fmt.Println("Failed to create an http request")
-		return false, err
+		return nil, err
 	}
 
 	client := &http.Client{}
@@ -191,5 +191,12 @@ func (gc *GatewayConnector) LoginUser(user *models.User) (bool, error) {
 	if err != nil {
 		fmt.Println("Internal service failed to add user score")
 	}
-	return response.StatusCode == http.StatusOK, err
+	res := &models.Session{}
+	err = json.NewDecoder(response.Body).Decode(res)
+	if err != nil {
+		fmt.Println("Failed to decode data from internal service")
+		err = errors.New("Decoding error")
+		return nil, err
+	}
+	return res, err
 }
