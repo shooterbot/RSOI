@@ -10,7 +10,7 @@ import (
 
 const (
 	createUser       = `insert into users(username, password) values($1, crypt($2, gen_salt('bf')));`
-	loginUser        = `select uuid from users where username=$1 and password=crypt($2, password);`
+	loginUser        = `select uid from users where username=$1 and password=crypt($2, password);`
 	getUserLikes     = `select liked from users_likes where user_id in (select id from users where uid=$1);`
 	getUserDislikes  = `select disliked from users_dislikes where user_id in (select id from users where uid=$1);`
 	getUserUuid      = `select uid from users where username = $1`
