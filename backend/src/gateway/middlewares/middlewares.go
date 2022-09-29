@@ -12,9 +12,9 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
-		authHeader := r.Header.Get("Authorization")
-		if authHeader != "" {
-			authToken := strings.Split(authHeader, " ")[1]
+		data := strings.Split(r.Header.Get("Authorization"), " ")
+		if len(data) == 2 {
+			authToken := data[1]
 			algorithm := jwt.HmacSha256(config.JWTKey)
 
 			claims, err := algorithm.DecodeAndValidate(authToken)
