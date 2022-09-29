@@ -41,10 +41,10 @@ func (r *QueueRepeater) proceed() {
 			return
 		default:
 			success := true
-			for len(r.queue) > 0 {
-				for success && len(r.queue) > 0 {
-					success = r.handleFirst()
-				}
+			for success && len(r.queue) > 0 {
+				success = r.handleFirst()
+			}
+			if len(r.queue) > 0 {
 				select {
 				case <-time.After(r.queue[0].delay):
 					success = r.handleFirst()
