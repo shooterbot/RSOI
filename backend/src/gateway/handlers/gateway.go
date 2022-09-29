@@ -157,12 +157,6 @@ func (gh *GatewayHandlers) AddUserBookScore(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-type Session struct {
-	UserToken string `json:"user-token"`
-	Username  string `json:"username"`
-	Id        int    `json:"id"`
-}
-
 func (gh *GatewayHandlers) LoginUser(w http.ResponseWriter, r *http.Request) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
