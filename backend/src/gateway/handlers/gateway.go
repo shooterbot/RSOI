@@ -147,7 +147,7 @@ func (gh *GatewayHandlers) AddUserBookScore(w http.ResponseWriter, r *http.Reque
 	ret := gh.gc.AddUserBookScore(bookUuid, username, score)
 
 	if ret.Code == gateway_error.User || ret.Code == gateway_error.Internal {
-		fmt.Println("Failed to get add user score to a book")
+		fmt.Println("Failed to add user score to a book")
 		if ret.Code == gateway_error.Internal {
 			writeError(w, "Error while updating book user score", http.StatusServiceUnavailable)
 		} else {
@@ -185,6 +185,48 @@ func (gh *GatewayHandlers) LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(res)
+	if err != nil {
+		fmt.Println("Encoding json error: ", err)
+		http.Error(w, "Failed to encode data to json", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (gh *GatewayHandlers) GetUserPreferences(w http.ResponseWriter, r *http.Request) {
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			fmt.Println("Failed to close response body")
+		}
+	}(r.Body)
+
+	vars := mux.Vars(r)
+	uUuid := vars["userUuid"]
+	if uUuid == "" {
+		fmt.Println("Received an invalid path parameter")
+		http.Error(w, "Failed to get preferences: wrong path parameter", http.StatusBadRequest)
+		return
+	}
+
+	tokenUsername := r.Context().Value("Username")
+	tokenUuid := r.Context().Value("UUID")
+	if tokenUuid == "" || tokenUsername == "" || tokenUuid != uUuid {
+		fmt.Println("Failed to verify user authorization")
+		http.Error(w, "User is not authorized", http.StatusUnauthorized)
+		return
+
+	}
+
+	rec, ret := gh.gc.GetUserPreferences(uUuid)
+
+	if ret.Code != gateway_error.Ok {
+		fmt.Println("Failed to get user preferences from internal service")
+		writeError(w, "Error while getting user preferences", http.StatusServiceUnavailable)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	err := json.NewEncoder(w).Encode(rec)
 	if err != nil {
 		fmt.Println("Encoding json error: ", err)
 		http.Error(w, "Failed to encode data to json", http.StatusInternalServerError)

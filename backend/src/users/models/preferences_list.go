@@ -1,6 +1,6 @@
 package models
 
 type PreferencesList struct {
-	Likes    []int
-	Dislikes []int
+	Likes    []string
+	Dislikes []string
 }

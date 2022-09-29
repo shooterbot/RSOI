@@ -1,8 +1,8 @@
 package models
 
 type PreferencesList struct {
-	Likes    []int `json:"likes"`
-	Dislikes []int `json:"dislikes"`
+	Likes    []string `json:"likes"`
+	Dislikes []string `json:"dislikes"`
 }
 
 type Book struct {

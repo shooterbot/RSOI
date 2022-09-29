@@ -24,6 +24,7 @@ func RunServer(address string, config *connector.Config) error {
 	apiRouter.Use(middlewares.AuthMiddleware)
 	apiRouter.HandleFunc("/catalogue", gh.GetCatalogue).Methods(http.MethodGet)
 	apiRouter.HandleFunc("/users", gh.CreateUser).Methods(http.MethodPost)
+	apiRouter.HandleFunc("/users/{userUuid:[0-9|a-z|\\-]+}/preferences", gh.GetUserPreferences).Methods(http.MethodGet)
 	apiRouter.HandleFunc("/catalogue/{bookUuid:[0-9|a-z|\\-]+}", gh.AddUserBookScore).Methods(http.MethodPatch)
 	apiRouter.HandleFunc("/sessions", gh.LoginUser).Methods(http.MethodPost)
 	apiRouter.HandleFunc("/recommendations", gh.GetRecommendations).Methods(http.MethodGet)

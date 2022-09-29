@@ -54,22 +54,22 @@ func (ur *UsersRepository) LoginUser(user *models.UserAuthData) (string, error) 
 
 func (ur *UsersRepository) GetUserPreferences(uuid string) (models.PreferencesList, error) {
 	res := models.PreferencesList{
-		Likes:    make([]int, 0),
-		Dislikes: make([]int, 0),
+		Likes:    make([]string, 0),
+		Dislikes: make([]string, 0),
 	}
 	data, err := ur.db.Query(getUserLikes, uuid)
 	if err != nil {
 		fmt.Printf("Failed to get likes from db\n")
 	}
 	for _, row := range data {
-		res.Likes = append(res.Likes, utility.BytesToInt(row[0]))
+		res.Likes = append(res.Likes, utility.BytesToUid(row[0]))
 	}
 	data, err = ur.db.Query(getUserDislikes, uuid)
 	if err != nil {
 		fmt.Printf("Failed to get dislikes from db\n")
 	}
 	for _, row := range data {
-		res.Dislikes = append(res.Dislikes, utility.BytesToInt(row[0]))
+		res.Dislikes = append(res.Dislikes, utility.BytesToUid(row[0]))
 	}
 	return res, err
 }

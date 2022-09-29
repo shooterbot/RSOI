@@ -76,6 +76,26 @@ func get_attributes(lib []models.Book) []attributes {
 	return res
 }
 
+func getPreferences(lib []models.Book, prefs *models.PreferencesList) ([]int, []int) {
+	likes := make([]int, 0)
+	dislikes := make([]int, 0)
+	for _, like := range prefs.Likes {
+		for _, book := range lib {
+			if book.Uuid == like {
+				likes = append(likes, book.Id)
+			}
+		}
+	}
+	for _, dislike := range prefs.Dislikes {
+		for _, book := range lib {
+			if book.Uuid == dislike {
+				dislikes = append(dislikes, book.Id)
+			}
+		}
+	}
+	return likes, dislikes
+}
+
 func (rc *RecommendationsUsecase) GetRecommendations(lib []models.Book, prefs *models.PreferencesList) []models.Book {
 	n := len(lib)
 	like_res := make([]float64, n)
@@ -84,9 +104,10 @@ func (rc *RecommendationsUsecase) GetRecommendations(lib []models.Book, prefs *m
 	len2 := 1
 
 	booksAttr := get_attributes(lib)
+	likes, dislikes := getPreferences(lib, prefs)
 
 	if len(prefs.Likes) != 0 {
-		for _, id := range prefs.Likes {
+		for _, id := range likes {
 			for i, dif := range difference(id, booksAttr) {
 				like_res[i] += dif
 			}
@@ -94,7 +115,7 @@ func (rc *RecommendationsUsecase) GetRecommendations(lib []models.Book, prefs *m
 		len1 = len(prefs.Likes)
 	}
 	if len(prefs.Dislikes) != 0 {
-		for _, id := range prefs.Dislikes {
+		for _, id := range dislikes {
 			for i, dif := range difference(id, booksAttr) {
 				unlike_res[i] += dif
 			}
